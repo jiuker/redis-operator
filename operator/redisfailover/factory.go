@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/spotahome/kooper/v2/controller"
-	"github.com/spotahome/kooper/v2/controller/leaderelection"
 	kooperlog "github.com/spotahome/kooper/v2/log"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -40,16 +39,16 @@ func New(cfg Config, k8sService k8s.Services, k8sClient kubernetes.Interface, lo
 
 	kooperLogger := kooperlogger{Logger: logger.WithField("operator", "redisfailover")}
 	// Leader election service.
-	leSVC, err := leaderelection.NewDefault(lockKey, lockNamespace, k8sClient, kooperLogger)
-	if err != nil {
-		return nil, err
-	}
+	//leSVC, err := leaderelection.NewDefault(lockKey, lockNamespace, k8sClient, kooperLogger)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	// Create our controller.
 	return controller.New(&controller.Config{
-		Handler:         rfHandler,
-		Retriever:       rfRetriever,
-		LeaderElector:   leSVC,
+		Handler:   rfHandler,
+		Retriever: rfRetriever,
+		//LeaderElector:   leSVC,
 		MetricsRecorder: kooperMetricsRecorder,
 		Logger:          kooperLogger,
 		Name:            "redisfailover",
