@@ -5,6 +5,25 @@ entries:
       category: Redis Operator
     apiVersion: v1
     appVersion: 1.2.4
+    created: "2023-08-11T03:23:38.600040747Z"
+    description: A Helm chart for the Spotahome Redis Operator
+    digest: d5e6461e3a15207e80adfb4ef81b7237bee4867f5f319dbb7d68ca287624450a
+    home: https://github.com/spotahome/redis-operator
+    keywords:
+    - golang
+    - operator
+    - cluster
+    kubeVersion: '>=1.21.0-0'
+    name: redis-operator
+    sources:
+    - https://github.com/spotahome/redis-operator
+    urls:
+    - https://github.com/jiuker/redis-operator/releases/download/Chart-3.2.8/redis-operator-3.2.8.tgz
+    version: 3.2.8
+  - annotations:
+      category: Redis Operator
+    apiVersion: v1
+    appVersion: 1.2.4
     created: "2023-04-03T02:07:04.954772119Z"
     description: A Helm chart for the Spotahome Redis Operator
     digest: 292e3bdf3c17afdbafb61b6b704861be0c8447ba108d0c71ee9adcfc656456b3
@@ -74,4 +93,4 @@ entries:
     urls:
     - https://github.com/spotahome/redis-operator/releases/download/Chart-3.1.2/redis-operator-3.1.2.tgz
     version: 3.1.2
-generated: "2023-04-03T02:07:04.954785519Z"
+generated: "2023-08-11T03:23:38.600252548Z"
