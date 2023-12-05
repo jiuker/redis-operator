@@ -3,6 +3,7 @@ package redisfailover
 import (
 	"context"
 	"fmt"
+	"github.com/spotahome/redis-operator/service/redis"
 	"regexp"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -31,7 +32,7 @@ var (
 // resources that a RF needs.
 type RedisFailoverHandler struct {
 	config     Config
-	k8sservice k8s.Service
+	k8sservice k8s.Services
 	rfService  rfservice.RedisFailoverClient
 	rfChecker  rfservice.RedisFailoverCheck
 	rfHealer   rfservice.RedisFailoverHeal
@@ -40,7 +41,7 @@ type RedisFailoverHandler struct {
 }
 
 // NewRedisFailoverHandler returns a new RF handler
-func NewRedisFailoverHandler(config Config, rfService rfservice.RedisFailoverClient, rfChecker rfservice.RedisFailoverCheck, rfHealer rfservice.RedisFailoverHeal, k8sservice k8s.Service, mClient metrics.Recorder, logger log.Logger) *RedisFailoverHandler {
+func NewRedisFailoverHandler(config Config, rfService rfservice.RedisFailoverClient, rfChecker rfservice.RedisFailoverCheck, rfHealer rfservice.RedisFailoverHeal, k8sservice k8s.Services, mClient metrics.Recorder, logger log.Logger) *RedisFailoverHandler {
 	return &RedisFailoverHandler{
 		config:     config,
 		rfService:  rfService,
@@ -75,7 +76,10 @@ func (r *RedisFailoverHandler) Handle(_ context.Context, obj runtime.Object) err
 		r.mClient.SetClusterError(rf.Namespace, rf.Name)
 		return err
 	}
-
+	if err := redis.InstallNodePortSvc(context.Background(), r.k8sservice, rf); err != nil {
+		r.mClient.SetClusterError(rf.Namespace, rf.Name)
+		return err
+	}
 	if err := r.CheckAndHeal(rf); err != nil {
 		r.mClient.SetClusterError(rf.Namespace, rf.Name)
 		return err
