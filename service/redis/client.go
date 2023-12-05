@@ -39,8 +39,10 @@ type client struct {
 
 // New returns a redis client
 func New(metricsRecorder metrics.Recorder) Client {
-	return &client{
-		metricsRecorder: metricsRecorder,
+	return &ClientWrapper{
+		client: &client{
+			metricsRecorder: metricsRecorder,
+		},
 	}
 }
 
