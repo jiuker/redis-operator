@@ -66,6 +66,18 @@ func (c *ClientWrapper) GetSlaveOf(ip, port, password string) (string, error) {
 	return match[1], nil
 }
 
+func (c *ClientWrapper) GetSentinelMonitor(ip string) (string, string, error) {
+	rip, rport, err := c.client.GetSentinelMonitor(ip)
+	if err != nil {
+		return "", "", err
+	}
+	podIP, found := NodeportToPodIP(rport)
+	if found {
+		return podIP, "6379", nil
+	}
+	return rip, rport, err
+}
+
 func (c *ClientWrapper) IsMaster(ip, port, password string) (bool, error) {
 	nip, nport, found := PodIPToNodePortIP(ip)
 	if found {
@@ -194,7 +206,8 @@ func InstallNodePortSvc(ctx context.Context, K8SService k8s.Services, rf *redisf
 					TargetPort: intstr.FromInt(6379),
 				},
 			},
-			Type: corev1.ServiceTypeNodePort,
+			Type:                     corev1.ServiceTypeNodePort,
+			PublishNotReadyAddresses: true,
 		},
 	}
 	for i := int32(0); i < rf.Spec.Redis.Replicas; i++ {
