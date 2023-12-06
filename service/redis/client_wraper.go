@@ -3,6 +3,11 @@ package redis
 import (
 	"context"
 	"fmt"
+	"net"
+	"regexp"
+	"strconv"
+	"sync"
+
 	rediscli "github.com/go-redis/redis/v8"
 	redisfailoverv1 "github.com/spotahome/redis-operator/api/redisfailover/v1"
 	"github.com/spotahome/redis-operator/log"
@@ -12,10 +17,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"net"
-	"regexp"
-	"strconv"
-	"sync"
 )
 
 const (
@@ -155,7 +156,7 @@ func NodeportToPodIP(nodeport string) (podIP string, found bool) {
 func PodIPToNodePortIP(podIP string) (nodeIP string, nodeport string, found bool) {
 	globalRW.RLock()
 	defer globalRW.RUnlock()
-	cache, ok := globalPodIPToNodeIPNodePort[nodeport]
+	cache, ok := globalPodIPToNodeIPNodePort[podIP]
 	if !ok {
 		return "", "", false
 	}
