@@ -250,6 +250,33 @@ func InstallNodePortSvc(ctx context.Context, K8SService k8s.Services, rf *redisf
 			return fmt.Errorf("pod %s is not ready at %s", podName, rf.Namespace)
 		}
 	}
+
+	password, err := k8s.GetRedisPassword(K8SService, rf)
+	if err != nil {
+		return err
+	}
+
+	for _, pod := range rps.Items {
+		options := &rediscli.Options{
+			Addr:     net.JoinHostPort(pod.Status.PodIP, "6379"),
+			Password: password,
+			DB:       0,
+		}
+		rClient := rediscli.NewClient(options)
+		defer rClient.Close()
+		get, err := rClient.ConfigGet(context.Background(), "replica-announce-port").Result()
+		if err != nil {
+			continue
+		}
+		if len(get) == 2 && get[1].(string) == globalPodIPToNodeIPNodePort[pod.Status.PodIP].Port {
+			continue
+		}
+		_, err = rClient.ConfigSet(context.TODO(), "replica-announce-port", globalPodIPToNodeIPNodePort[pod.Status.PodIP].Port).Result()
+		if err != nil {
+			log.Errorf("set %s replica-announce-port %s error:%s", pod.Status.PodIP, globalPodIPToNodeIPNodePort[pod.Status.PodIP].Port, err)
+		}
+	}
+
 	return nil
 }
 
